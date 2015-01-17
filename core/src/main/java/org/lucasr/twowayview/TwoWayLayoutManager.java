@@ -850,8 +850,23 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
             protected int getHorizontalSnapPreference() {
                 return LinearSmoothScroller.SNAP_TO_START;
             }
-        };
 
+
+            @Override
+            protected int calculateTimeForScrolling(int dx) {
+                int originVal = super.calculateTimeForScrolling(dx);
+                return Math.max(originVal,100);
+            }
+            @Override
+            protected int calculateTimeForDeceleration(int dx) {
+                // we want to cover same area with the linear interpolator for the first 10% of the
+                // interpolation. After that, deceleration will take control.
+                // area under curve (1-(1-x)^2) can be calculated as (1 - x/3) * x * x
+                // which gives 0.100028 when x = .3356
+                // this is why we divide linear scrolling time with .3356
+                return  (int) Math.ceil(calculateTimeForScrolling(dx) / .3356);
+            }
+        };
         scroller.setTargetPosition(position);
         startSmoothScroll(scroller);
     }

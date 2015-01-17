@@ -22,6 +22,7 @@ import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -121,7 +122,7 @@ public class RecyclerViewEx extends ViewGroup {
      */
     public static final int TOUCH_SLOP_PAGING = 1;
 
-    private static final int MAX_SCROLL_DURATION = 2000;
+    private static final int MAX_SCROLL_DURATION = 5000;
 
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 
@@ -918,6 +919,39 @@ public class RecyclerViewEx extends ViewGroup {
     }
 
     /**
+     * Get position of center child in X Axes
+     * @return
+     */
+    public int getCenterXChildPosition(){
+        int childCount = getChildCount();
+        if(childCount >0) {
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                if (isChildInCenterX(child)) {
+                    return getChildPosition(child);
+                }
+            }
+        }
+        return childCount;
+    }
+
+    public boolean isChildInCenterX(View view){
+        int childCount = getChildCount();
+        int[] lvLocationOnScreen = new int[2];
+        int[] vLocationOnScreen = new int[2];
+        getLocationOnScreen(lvLocationOnScreen);
+        int middleX = lvLocationOnScreen[0] + getWidth() / 2;
+        if (childCount > 0) {
+            view.getLocationOnScreen(vLocationOnScreen);
+            if (vLocationOnScreen[0] <= middleX && vLocationOnScreen[0] + view.getWidth() >= middleX) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Starts a smooth scroll to an adapter position.
      * <p>
      * To support smooth scrolling, you must override
@@ -1187,6 +1221,46 @@ public class RecyclerViewEx extends ViewGroup {
         }
     }
 
+
+
+    /***
+     * 在Touch事件执行完且没有fling的时候，调整当前view位置
+     */
+    void adjustPosition(int spanX,int spanY){
+        int childCount = getChildCount();
+        int[] lvLocationOnScreen = new int[2];
+        int[] childLocationOnScreen = new int[2];
+        if(childCount >0){
+            getLocationOnScreen(lvLocationOnScreen);
+            int middleX = lvLocationOnScreen[0] + getWidth() / 2;
+
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                child.getLocationOnScreen(childLocationOnScreen);
+                int xStart = childLocationOnScreen[0];
+                int xEnd = xStart+child.getWidth();
+                if(spanX>0) {
+                    if (xEnd >= lvLocationOnScreen[0] + getWidth() / 2
+                            &&xStart<lvLocationOnScreen[0]+getWidth()/2) {
+                        smoothScrollToPosition(getChildPosition(child));
+                        return;
+                    }
+                }else {
+                    if(xStart<lvLocationOnScreen[0] + getWidth() * 1 / 2&&xEnd >= lvLocationOnScreen[0] + getWidth() * 1 / 2){
+                        smoothScrollToPosition(getChildPosition(child));
+                        return;
+                    }
+                }
+            }
+        }else {
+            setScrollState(SCROLL_STATE_IDLE);
+        }
+    }
+
+
+
+
+
     /**
      * Begin a standard fling with an initial velocity along each axis in pixels per second.
      * If the velocity given is below the system-defined minimum this method will return false
@@ -1203,11 +1277,11 @@ public class RecyclerViewEx extends ViewGroup {
         if (Math.abs(velocityY) < mMinFlingVelocity) {
             velocityY = 0;
         }
-        velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
-        velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
+        velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX/2, mMaxFlingVelocity));
+        velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY/2, mMaxFlingVelocity));
+        Log.d(TAG,"velocityX:"+velocityX);
         if (velocityX != 0 || velocityY != 0) {
-            mViewFlinger.fling(velocityX, velocityY);
-            return true;
+            return mViewFlinger.fling(velocityX, velocityY);
         }
         return false;
     }
@@ -1700,8 +1774,8 @@ public class RecyclerViewEx extends ViewGroup {
                         -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : 0;
                 final float yvel = canScrollVertically ?
                         -VelocityTrackerCompat.getYVelocity(mVelocityTracker, mScrollPointerId) : 0;
-                if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
-                    setScrollState(SCROLL_STATE_IDLE);
+                if (!((xvel != 0 || yvel != 0) && fling((int) (xvel), (int) (yvel)))) {
+                    adjustPosition(mLastTouchX-mInitialTouchX,mLastTouchY-mInitialTouchY);
                 }
                 mVelocityTracker.clear();
                 releaseGlows();
@@ -2752,6 +2826,7 @@ public class RecyclerViewEx extends ViewGroup {
     }
 
     private class ViewFlinger implements Runnable {
+        private final float mPhysicalCoeff;
         private int mLastFlingX;
         private int mLastFlingY;
         private ScrollerCompat mScroller;
@@ -2766,7 +2841,34 @@ public class RecyclerViewEx extends ViewGroup {
 
         public ViewFlinger() {
             mScroller = ScrollerCompat.create(getContext(), sQuinticInterpolator);
+            final float ppi = getResources().getDisplayMetrics().density * 160.0f;
+            mPhysicalCoeff = SensorManager.GRAVITY_EARTH // g (m/s^2)
+                    * 39.37f // inch/meter
+                    * ppi
+                    * 0.84f; // look and feel tuning
         }
+
+
+        private float DECELERATION_RATE = (float) (Math.log(0.78) / Math.log(0.9));
+        private final float INFLEXION = 0.35f; // Tension lines cross at (INFLEXION, 1)
+
+        private double getSplineDeceleration(int velocity) {
+            return Math.log(INFLEXION * Math.abs(velocity) / (0.015f * mPhysicalCoeff));
+        }
+
+        private double getSplineFlingDistance(int velocity) {
+            final double l = getSplineDeceleration(velocity);
+            final double decelMinusOne = DECELERATION_RATE - 1.0;
+            return 0.015f * mPhysicalCoeff * Math.exp(DECELERATION_RATE / decelMinusOne * l);
+        }
+
+        /* Returns the duration, expressed in milliseconds */
+        private int getSplineFlingDuration(int velocity) {
+            final double l = getSplineDeceleration(velocity);
+            final double decelMinusOne = DECELERATION_RATE - 1.0;
+            return (int) (1000.0 * Math.exp(l / decelMinusOne));
+        }
+
 
         @Override
         public void run() {
@@ -2910,12 +3012,38 @@ public class RecyclerViewEx extends ViewGroup {
             }
         }
 
-        public void fling(int velocityX, int velocityY) {
-            setScrollState(SCROLL_STATE_SETTLING);
+        public boolean fling(int velocityX, int velocityY) {
+//            setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;
-            mScroller.fling(0, 0, velocityX, velocityY,
-                    Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+//            mScroller.fling(0, 0, velocityX, velocityY,
+//                    Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            int velocity = velocityX;
+            int mSplineDistance = 0;
+            double totalDistance = 0;
+            if (velocity != 0) {
+//                mDuration = mSplineDuration = getSplineFlingDuration(velocity);
+                totalDistance = getSplineFlingDistance(velocity);
+            }
+
+            mSplineDistance = (int) (totalDistance * Math.signum(velocity));
+            Log.d(TAG,String.format("mSplineDistance:%s,totalDistance:%s",mSplineDistance,totalDistance));
+            int spanPosition = 0;
+            int targetPosition = getCenterXChildPosition();
+            if(getChildCount()>0) {
+                View child = getChildAt(0);
+                spanPosition = mSplineDistance/child.getWidth();
+                if(spanPosition==0&&Math.abs(mSplineDistance)>child.getWidth()/4){
+                    spanPosition = mSplineDistance>0?1:-1;
+                }
+                targetPosition += spanPosition;
+                Log.d(TAG, String.format("spanPosition:%s,targetPosition:%s,child width:%s", spanPosition, targetPosition, child.getWidth()));
+            }
+            if(spanPosition==0){
+                return  false;
+            }
+            smoothScrollToPosition(targetPosition);
             postOnAnimation();
+            return true;
         }
 
         public void smoothScrollBy(int dx, int dy) {
@@ -2951,7 +3079,7 @@ public class RecyclerViewEx extends ViewGroup {
                 float absDelta = (float) (horizontal ? absDx : absDy);
                 duration = (int) (((absDelta / containerSize) + 1) * 300);
             }
-            return Math.min(duration, MAX_SCROLL_DURATION);
+            return Math.min(duration*10, MAX_SCROLL_DURATION);
         }
 
         public void smoothScrollBy(int dx, int dy, int duration) {

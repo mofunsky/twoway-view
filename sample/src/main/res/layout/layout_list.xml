@@ -22,8 +22,6 @@
     android:layout_height="match_parent">
 <org.lucasr.twowayview.widget.TwoWayView
     android:clipChildren="false"
-    android:layout_marginLeft="20dp"
-    android:layout_marginRight="20dp"
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
