@@ -23,13 +23,15 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearSmoothScroller;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.LayoutManager;
-import android.support.v7.widget.RecyclerView.LayoutParams;
-import android.support.v7.widget.RecyclerView.Recycler;
-import android.support.v7.widget.RecyclerView.State;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.LinearSmoothScrollerEx;
+import android.support.v7.widget.RecyclerViewEx;
+import android.support.v7.widget.RecyclerViewEx.Adapter;
+import android.support.v7.widget.RecyclerViewEx.LayoutManager;
+import android.support.v7.widget.RecyclerViewEx.LayoutParams;
+import android.support.v7.widget.RecyclerViewEx.Recycler;
+import android.support.v7.widget.RecyclerViewEx.State;
+import android.support.v7.widget.RecyclerViewEx.ViewHolder;
+import android.support.v7.widget.RecyclerViewEx;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
@@ -49,13 +51,13 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
         END
     }
 
-    private RecyclerView mRecyclerView;
+    private RecyclerViewEx mRecyclerView;
 
     private boolean mIsVertical = true;
 
     private SavedState mPendingSavedState = null;
 
-    private int mPendingScrollPosition = RecyclerView.NO_POSITION;
+    private int mPendingScrollPosition = RecyclerViewEx.NO_POSITION;
     private int mPendingScrollOffset = 0;
 
     private int mLayoutStart;
@@ -488,7 +490,7 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
         if (firstChild != null) {
             setPendingScrollPositionWithOffset(firstPosition, getChildStart(firstChild));
         } else {
-            setPendingScrollPositionWithOffset(RecyclerView.NO_POSITION, 0);
+            setPendingScrollPositionWithOffset(RecyclerViewEx.NO_POSITION, 0);
         }
     }
 
@@ -613,13 +615,13 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
         final int itemCount = state.getItemCount();
 
         int pendingPosition = getPendingScrollPosition();
-        if (pendingPosition != RecyclerView.NO_POSITION) {
+        if (pendingPosition != RecyclerViewEx.NO_POSITION) {
             if (pendingPosition < 0 || pendingPosition >= itemCount) {
-                pendingPosition = RecyclerView.NO_POSITION;
+                pendingPosition = RecyclerViewEx.NO_POSITION;
             }
         }
 
-        if (pendingPosition != RecyclerView.NO_POSITION) {
+        if (pendingPosition != RecyclerViewEx.NO_POSITION) {
             return pendingPosition;
         } else if (getChildCount() > 0) {
             return findFirstValidChildPosition(itemCount);
@@ -685,19 +687,19 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
     }
 
     @Override
-    public void onAttachedToWindow(RecyclerView view) {
+    public void onAttachedToWindow(RecyclerViewEx view) {
         super.onAttachedToWindow(view);
         mRecyclerView = view;
     }
 
     @Override
-    public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
+    public void onDetachedFromWindow(RecyclerViewEx view, Recycler recycler) {
         super.onDetachedFromWindow(view, recycler);
         mRecyclerView = null;
     }
 
     @Override
-    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+    public void onAdapterChanged(RecyclerViewEx.Adapter oldAdapter, RecyclerViewEx.Adapter newAdapter) {
         super.onAdapterChanged(oldAdapter, newAdapter);
 
         final ItemSelectionSupport itemSelectionSupport = ItemSelectionSupport.from(mRecyclerView);
@@ -726,7 +728,7 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
 
         onLayoutScrapList(recycler, state);
 
-        setPendingScrollPositionWithOffset(RecyclerView.NO_POSITION, 0);
+        setPendingScrollPositionWithOffset(RecyclerViewEx.NO_POSITION, 0);
         mPendingSavedState = null;
     }
 
@@ -746,32 +748,32 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
     }
 
     @Override
-    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsAdded(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate();
     }
 
     @Override
-    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsRemoved(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate();
     }
 
     @Override
-    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsUpdated(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate();
     }
 
     @Override
-    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {
+    public void onItemsMoved(RecyclerViewEx recyclerView, int from, int to, int itemCount) {
         handleUpdate();
     }
 
     @Override
-    public void onItemsChanged(RecyclerView recyclerView) {
+    public void onItemsChanged(RecyclerViewEx recyclerView) {
         handleUpdate();
     }
 
     @Override
-    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+    public RecyclerViewEx.LayoutParams generateDefaultLayoutParams() {
         if (mIsVertical) {
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         } else {
@@ -823,8 +825,8 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
     }
 
     @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView, State state, int position) {
-        final LinearSmoothScroller scroller = new LinearSmoothScroller(recyclerView.getContext()) {
+    public void smoothScrollToPosition(RecyclerViewEx recyclerView, State state, int position) {
+        final LinearSmoothScrollerEx scroller = new LinearSmoothScrollerEx(recyclerView.getContext()) {
             @Override
             public PointF computeScrollVectorForPosition(int targetPosition) {
                 if (getChildCount() == 0) {
@@ -902,7 +904,7 @@ public abstract class TwoWayLayoutManager extends LayoutManager {
         final SavedState state = new SavedState(SavedState.EMPTY_STATE);
 
         int anchorItemPosition = getPendingScrollPosition();
-        if (anchorItemPosition == RecyclerView.NO_POSITION) {
+        if (anchorItemPosition == RecyclerViewEx.NO_POSITION) {
             anchorItemPosition = getFirstVisiblePosition();
         }
         state.anchorItemPosition = anchorItemPosition;

@@ -20,7 +20,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerViewEx;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,15 +28,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static android.support.v7.widget.RecyclerViewEx.SCROLL_STATE_IDLE;
+import static android.support.v7.widget.RecyclerViewEx.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerViewEx.SCROLL_STATE_SETTLING;
 
 import org.lucasr.twowayview.ItemClickSupport;
 import org.lucasr.twowayview.ItemClickSupport.OnItemClickListener;
 import org.lucasr.twowayview.ItemClickSupport.OnItemLongClickListener;
 import org.lucasr.twowayview.widget.DividerItemDecoration;
 import org.lucasr.twowayview.widget.TwoWayView;
+
+import java.util.logging.Handler;
 
 public class LayoutFragment extends Fragment {
     private static final String ARG_LAYOUT_ID = "layout_id";
@@ -94,29 +96,39 @@ public class LayoutFragment extends Fragment {
 
         itemClick.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(RecyclerView parent, View child, int position, long id) {
+            public void onItemClick(final RecyclerViewEx parent, View child, int position, long id) {
+
                 mToast.setText("Item clicked: " + position);
                 mToast.show();
+                new android.os.Handler().postDelayed(new Runnable(){
+                    @Override
+                    public void run() {
+                        parent.smoothScrollToPosition(0);
+
+                    }
+
+
+                },1000);
             }
         });
 
         itemClick.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(RecyclerView parent, View child, int position, long id) {
+            public boolean onItemLongClick(RecyclerViewEx parent, View child, int position, long id) {
                 mToast.setText("Item long pressed: " + position);
                 mToast.show();
                 return true;
             }
         });
 
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.setOnScrollListener(new RecyclerViewEx.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int scrollState) {
+            public void onScrollStateChanged(RecyclerViewEx recyclerView, int scrollState) {
                 updateState(scrollState);
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int i, int i2) {
+            public void onScrolled(RecyclerViewEx recyclerView, int i, int i2) {
                 mPositionText.setText("First: " + mRecyclerView.getFirstVisiblePosition());
                 mCountText.setText("Count: " + mRecyclerView.getChildCount());
             }

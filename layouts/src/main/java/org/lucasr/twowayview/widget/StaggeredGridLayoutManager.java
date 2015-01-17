@@ -21,9 +21,9 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Recycler;
-import android.support.v7.widget.RecyclerView.State;
+import android.support.v7.widget.RecyclerViewEx;
+import android.support.v7.widget.RecyclerViewEx.Recycler;
+import android.support.v7.widget.RecyclerViewEx.State;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -222,7 +222,7 @@ public class StaggeredGridLayoutManager extends GridLayoutManager {
     }
 
     @Override
-    public boolean checkLayoutParams(RecyclerView.LayoutParams lp) {
+    public boolean checkLayoutParams(RecyclerViewEx.LayoutParams lp) {
         boolean result = super.checkLayoutParams(lp);
         if (lp instanceof LayoutParams) {
             final LayoutParams staggeredLp = (LayoutParams) lp;

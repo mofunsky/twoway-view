@@ -19,6 +19,7 @@ package org.lucasr.twowayview.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerViewEx;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -27,7 +28,7 @@ import org.lucasr.twowayview.TwoWayLayoutManager.Orientation;
 
 import java.lang.reflect.Constructor;
 
-public class TwoWayView extends RecyclerView {
+public class TwoWayView extends RecyclerViewEx {
     private static final String LOGTAG = "TwoWayView";
 
     private static final Class<?>[] sConstructorSignature = new Class[] {

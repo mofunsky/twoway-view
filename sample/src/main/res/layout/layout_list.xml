@@ -14,12 +14,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-
-<org.lucasr.twowayview.widget.TwoWayView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clipChildren="false"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<org.lucasr.twowayview.widget.TwoWayView
+    android:clipChildren="false"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/TwoWayView"
     app:twowayview_layoutManager="ListLayoutManager"/>
+</RelativeLayout>

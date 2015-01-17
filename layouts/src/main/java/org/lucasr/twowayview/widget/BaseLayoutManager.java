@@ -20,11 +20,11 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.LayoutParams;
-import android.support.v7.widget.RecyclerView.Recycler;
-import android.support.v7.widget.RecyclerView.State;
+import android.support.v7.widget.RecyclerViewEx;
+import android.support.v7.widget.RecyclerViewEx.Adapter;
+import android.support.v7.widget.RecyclerViewEx.LayoutParams;
+import android.support.v7.widget.RecyclerViewEx.Recycler;
+import android.support.v7.widget.RecyclerViewEx.State;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -238,7 +238,7 @@ public abstract class BaseLayoutManager extends TwoWayLayoutManager {
     }
 
     private void requestMoveLayout() {
-        if (getPendingScrollPosition() != RecyclerView.NO_POSITION) {
+        if (getPendingScrollPosition() != RecyclerViewEx.NO_POSITION) {
             return;
         }
 
@@ -377,31 +377,31 @@ public abstract class BaseLayoutManager extends TwoWayLayoutManager {
     }
 
     @Override
-    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsAdded(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate(positionStart, itemCount, UpdateOp.ADD);
         super.onItemsAdded(recyclerView, positionStart, itemCount);
     }
 
     @Override
-    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsRemoved(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate(positionStart, itemCount, UpdateOp.REMOVE);
         super.onItemsRemoved(recyclerView, positionStart, itemCount);
     }
 
     @Override
-    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsUpdated(RecyclerViewEx recyclerView, int positionStart, int itemCount) {
         handleUpdate(positionStart, itemCount, UpdateOp.UPDATE);
         super.onItemsUpdated(recyclerView, positionStart, itemCount);
     }
 
     @Override
-    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {
+    public void onItemsMoved(RecyclerViewEx recyclerView, int from, int to, int itemCount) {
         handleUpdate(from, to, UpdateOp.MOVE);
         super.onItemsMoved(recyclerView, from, to, itemCount);
     }
 
     @Override
-    public void onItemsChanged(RecyclerView recyclerView) {
+    public void onItemsChanged(RecyclerViewEx recyclerView) {
         clearItemEntries();
         super.onItemsChanged(recyclerView);
     }

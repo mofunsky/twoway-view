@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.LongSparseArray;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.RecyclerViewEx;
+import android.support.v7.widget.RecyclerViewEx.Adapter;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Checkable;
@@ -23,7 +23,7 @@ public class ItemSelectionSupport {
         MULTIPLE
     }
 
-    private final RecyclerView mRecyclerView;
+    private final RecyclerViewEx mRecyclerView;
     private final TouchListener mTouchListener;
 
     private ChoiceMode mChoiceMode = ChoiceMode.NONE;
@@ -38,7 +38,7 @@ public class ItemSelectionSupport {
 
     private static final int CHECK_POSITION_SEARCH_DISTANCE = 20;
 
-    private ItemSelectionSupport(RecyclerView recyclerView) {
+    private ItemSelectionSupport(RecyclerViewEx recyclerView) {
         mRecyclerView = recyclerView;
 
         mTouchListener = new TouchListener(recyclerView);
@@ -132,7 +132,7 @@ public class ItemSelectionSupport {
      * @return A new array which contains the id of each checked item in the
      *         list.
      *
-     * @see android.support.v7.widget.RecyclerView.Adapter#hasStableIds()
+     * @see android.support.v7.widget.RecyclerViewEx.Adapter#hasStableIds()
      */
     public long[] getCheckedItemIds() {
         if (mChoiceMode == ChoiceMode.NONE
@@ -340,7 +340,7 @@ public class ItemSelectionSupport {
         // TODO confirm ids here
     }
 
-    public static ItemSelectionSupport addTo(RecyclerView recyclerView) {
+    public static ItemSelectionSupport addTo(RecyclerViewEx recyclerView) {
         ItemSelectionSupport itemSelectionSupport = from(recyclerView);
         if (itemSelectionSupport == null) {
             itemSelectionSupport = new ItemSelectionSupport(recyclerView);
@@ -352,7 +352,7 @@ public class ItemSelectionSupport {
         return itemSelectionSupport;
     }
 
-    public static void removeFrom(RecyclerView recyclerView) {
+    public static void removeFrom(RecyclerViewEx recyclerView) {
         final ItemSelectionSupport itemSelection = from(recyclerView);
         if (itemSelection == null) {
             // TODO: Log warning
@@ -365,7 +365,7 @@ public class ItemSelectionSupport {
         recyclerView.setTag(R.id.twowayview_item_selection_support, null);
     }
 
-    public static ItemSelectionSupport from(RecyclerView recyclerView) {
+    public static ItemSelectionSupport from(RecyclerViewEx recyclerView) {
         if (recyclerView == null) {
             return null;
         }
@@ -469,12 +469,12 @@ public class ItemSelectionSupport {
     }
 
     private class TouchListener extends ClickItemTouchListener {
-        TouchListener(RecyclerView recyclerView) {
+        TouchListener(RecyclerViewEx recyclerView) {
             super(recyclerView);
         }
 
         @Override
-        boolean performItemClick(RecyclerView parent, View view, int position, long id) {
+        boolean performItemClick(RecyclerViewEx parent, View view, int position, long id) {
             final Adapter adapter = mRecyclerView.getAdapter();
             boolean checkedStateChanged = false;
 
@@ -524,7 +524,7 @@ public class ItemSelectionSupport {
         }
 
         @Override
-        boolean performItemLongClick(RecyclerView parent, View view, int position, long id) {
+        boolean performItemLongClick(RecyclerViewEx parent, View view, int position, long id) {
             return true;
         }
     }

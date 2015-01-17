@@ -1,7 +1,7 @@
 package org.lucasr.twowayview.widget;
 
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerViewEx;
 import android.view.View;
 
 import org.lucasr.twowayview.TwoWayLayoutManager.Direction;
@@ -107,7 +107,7 @@ class ItemSpacingOffsets {
      * applying the offsets. This means we have to shift the spacing unevenly across
      * items depending on their position in the layout.
      */
-    public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+    public void getItemOffsets(Rect outRect, int itemPosition, RecyclerViewEx parent) {
         final BaseLayoutManager lm = (BaseLayoutManager) parent.getLayoutManager();
 
         lm.getLaneForPosition(mTempLaneInfo, itemPosition, Direction.END);

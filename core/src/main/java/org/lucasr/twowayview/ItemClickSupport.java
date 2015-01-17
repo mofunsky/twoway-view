@@ -1,6 +1,6 @@
 package org.lucasr.twowayview;
 
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerViewEx;
 import android.view.HapticFeedbackConstants;
 import android.view.SoundEffectConstants;
 import android.view.View;
@@ -8,47 +8,47 @@ import android.view.View;
 public class ItemClickSupport {
     /**
      * Interface definition for a callback to be invoked when an item in the
-     * RecyclerView has been clicked.
+     * RecyclerViewEx has been clicked.
      */
     public interface OnItemClickListener {
         /**
-         * Callback method to be invoked when an item in the RecyclerView
+         * Callback method to be invoked when an item in the RecyclerViewEx
          * has been clicked.
          *
-         * @param parent The RecyclerView where the click happened.
-         * @param view The view within the RecyclerView that was clicked
+         * @param parent The RecyclerViewEx where the click happened.
+         * @param view The view within the RecyclerViewEx that was clicked
          * @param position The position of the view in the adapter.
          * @param id The row id of the item that was clicked.
          */
-        void onItemClick(RecyclerView parent, View view, int position, long id);
+        void onItemClick(RecyclerViewEx parent, View view, int position, long id);
     }
 
     /**
      * Interface definition for a callback to be invoked when an item in the
-     * RecyclerView has been clicked and held.
+     * RecyclerViewEx has been clicked and held.
      */
     public interface OnItemLongClickListener {
         /**
-         * Callback method to be invoked when an item in the RecyclerView
+         * Callback method to be invoked when an item in the RecyclerViewEx
          * has been clicked and held.
          *
-         * @param parent The RecyclerView where the click happened
-         * @param view The view within the RecyclerView that was clicked
+         * @param parent The RecyclerViewEx where the click happened
+         * @param view The view within the RecyclerViewEx that was clicked
          * @param position The position of the view in the list
          * @param id The row id of the item that was clicked
          *
          * @return true if the callback consumed the long click, false otherwise
          */
-        boolean onItemLongClick(RecyclerView parent, View view, int position, long id);
+        boolean onItemLongClick(RecyclerViewEx parent, View view, int position, long id);
     }
 
-    private final RecyclerView mRecyclerView;
+    private final RecyclerViewEx mRecyclerView;
     private final TouchListener mTouchListener;
 
     private OnItemClickListener mItemClickListener;
     private OnItemLongClickListener mItemLongClickListener;
 
-    private ItemClickSupport(RecyclerView recyclerView) {
+    private ItemClickSupport(RecyclerViewEx recyclerView) {
         mRecyclerView = recyclerView;
 
         mTouchListener = new TouchListener(recyclerView);
@@ -57,7 +57,7 @@ public class ItemClickSupport {
 
     /**
      * Register a callback to be invoked when an item in the
-     * RecyclerView has been clicked.
+     * RecyclerViewEx has been clicked.
      *
      * @param listener The callback that will be invoked.
      */
@@ -67,7 +67,7 @@ public class ItemClickSupport {
 
     /**
      * Register a callback to be invoked when an item in the
-     * RecyclerView has been clicked and held.
+     * RecyclerViewEx has been clicked and held.
      *
      * @param listener The callback that will be invoked.
      */
@@ -79,7 +79,7 @@ public class ItemClickSupport {
         mItemLongClickListener = listener;
     }
 
-    public static ItemClickSupport addTo(RecyclerView recyclerView) {
+    public static ItemClickSupport addTo(RecyclerViewEx recyclerView) {
         ItemClickSupport itemClickSupport = from(recyclerView);
         if (itemClickSupport == null) {
             itemClickSupport = new ItemClickSupport(recyclerView);
@@ -91,7 +91,7 @@ public class ItemClickSupport {
         return itemClickSupport;
     }
 
-    public static void removeFrom(RecyclerView recyclerView) {
+    public static void removeFrom(RecyclerViewEx recyclerView) {
         final ItemClickSupport itemClickSupport = from(recyclerView);
         if (itemClickSupport == null) {
             // TODO: Log warning
@@ -102,7 +102,7 @@ public class ItemClickSupport {
         recyclerView.setTag(R.id.twowayview_item_click_support, null);
     }
 
-    public static ItemClickSupport from(RecyclerView recyclerView) {
+    public static ItemClickSupport from(RecyclerViewEx recyclerView) {
         if (recyclerView == null) {
             return null;
         }
@@ -111,12 +111,12 @@ public class ItemClickSupport {
     }
 
     private class TouchListener extends ClickItemTouchListener {
-        TouchListener(RecyclerView recyclerView) {
+        TouchListener(RecyclerViewEx recyclerView) {
             super(recyclerView);
         }
 
         @Override
-        boolean performItemClick(RecyclerView parent, View view, int position, long id) {
+        boolean performItemClick(RecyclerViewEx parent, View view, int position, long id) {
             if (mItemClickListener != null) {
                 view.playSoundEffect(SoundEffectConstants.CLICK);
                 mItemClickListener.onItemClick(parent, view, position, id);
@@ -127,7 +127,7 @@ public class ItemClickSupport {
         }
 
         @Override
-        boolean performItemLongClick(RecyclerView parent, View view, int position, long id) {
+        boolean performItemLongClick(RecyclerViewEx parent, View view, int position, long id) {
             if (mItemLongClickListener != null) {
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                 return mItemLongClickListener.onItemLongClick(parent, view, position, id);

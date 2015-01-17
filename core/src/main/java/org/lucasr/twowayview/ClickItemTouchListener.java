@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.OnItemTouchListener;
+import android.support.v7.widget.RecyclerViewEx;
+import android.support.v7.widget.RecyclerViewEx.OnItemTouchListener;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,12 +15,12 @@ abstract class ClickItemTouchListener implements OnItemTouchListener {
 
     private final GestureDetectorCompat mGestureDetector;
 
-    ClickItemTouchListener(RecyclerView hostView) {
+    ClickItemTouchListener(RecyclerViewEx hostView) {
         mGestureDetector = new ItemClickGestureDetector(hostView.getContext(),
                 new ItemClickGestureListener(hostView));
     }
 
-    private boolean isAttachedToWindow(RecyclerView hostView) {
+    private boolean isAttachedToWindow(RecyclerViewEx hostView) {
         if (Build.VERSION.SDK_INT >= 19) {
             return hostView.isAttachedToWindow();
         } else {
@@ -28,12 +28,12 @@ abstract class ClickItemTouchListener implements OnItemTouchListener {
         }
     }
 
-    private boolean hasAdapter(RecyclerView hostView) {
+    private boolean hasAdapter(RecyclerViewEx hostView) {
         return (hostView.getAdapter() != null);
     }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent event) {
+    public boolean onInterceptTouchEvent(RecyclerViewEx recyclerView, MotionEvent event) {
         if (!isAttachedToWindow(recyclerView) || !hasAdapter(recyclerView)) {
             return false;
         }
@@ -43,13 +43,13 @@ abstract class ClickItemTouchListener implements OnItemTouchListener {
     }
 
     @Override
-    public void onTouchEvent(RecyclerView recyclerView, MotionEvent event) {
+    public void onTouchEvent(RecyclerViewEx recyclerView, MotionEvent event) {
         // We can silently track tap and and long presses by silently
-        // intercepting touch events in the host RecyclerView.
+        // intercepting touch events in the host RecyclerViewEx.
     }
 
-    abstract boolean performItemClick(RecyclerView parent, View view, int position, long id);
-    abstract boolean performItemLongClick(RecyclerView parent, View view, int position, long id);
+    abstract boolean performItemClick(RecyclerViewEx parent, View view, int position, long id);
+    abstract boolean performItemLongClick(RecyclerViewEx parent, View view, int position, long id);
 
     private class ItemClickGestureDetector extends GestureDetectorCompat {
         private final ItemClickGestureListener mGestureListener;
@@ -73,10 +73,10 @@ abstract class ClickItemTouchListener implements OnItemTouchListener {
     }
 
     private class ItemClickGestureListener extends SimpleOnGestureListener {
-        private final RecyclerView mHostView;
+        private final RecyclerViewEx mHostView;
         private View mTargetChild;
 
-        public ItemClickGestureListener(RecyclerView hostView) {
+        public ItemClickGestureListener(RecyclerViewEx hostView) {
             mHostView = hostView;
         }
 
